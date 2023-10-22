@@ -1,92 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <link rel="stylesheet" href="styles.css" />
-    <meta charset="UTF-8">
-    <script src="https://telegram.org/js/telegram-web-app.js?1"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles-preset-confetti@2/tsparticles.preset.confetti.bundle.min.js"></script>
+    <title>Обратный отсчет</title>
+    <style>
+        body {
+            background-color: #333333;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <script>
+        // Установить расписание пар
+        const schedule = {
+            "понедельник": [
+                { start: "08:45", end: "10:05" },
+                { start: "10:25", end: "11:45" },
+                { start: "12:05", end: "13:25" },
+                { start: "13:35", end: "14:55" }
+            ],
+            "вторник": [
+                { start: "08:45", end: "10:05" },
+                { start: "10:25", end: "11:45" },
+                { start: "12:05", end: "13:25" },
+                { start: "13:35", end: "14:55" }
+            ],
+            "среда": [
+                { start: "08:45", end: "10:05" },
+                { start: "10:25", end: "11:45" },
+                { start: "12:05", end: "13:25" },
+                { start: "13:35", end: "14:55" }
+            ],
+            "четверг": [
+                { start: "08:45", end: "10:05" },
+                { start: "10:25", end: "11:45" },
+                { start: "12:05", end: "13:25" },
+                { start: "13:35", end: "14:55" }
+            ],
+            "пятница": [
+                { start: "08:45", end: "10:05" },
+                { start: "10:25", end: "11:45" },
+                { start: "12:05", end: "13:25" },
+                { start: "13:35", end: "14:55" }
+            ],
+            "суббота": [
+                { start: "08:45", end: "10:00" },
+                { start: "10:10", end: "11:25" },
+                { start: "11:35", end: "12:50" },
+                { start: "13:00", end: "14:15" }
+            ]
+        };
+
+        // Функция для обновления таймера каждую секунду
+        function updateTimer() {
+            const currentDate = new Date(); // Текущая дата и время
+            const currentDay = currentDate.toLocaleString('ru-RU', { weekday: 'long' }).toLowerCase(); // Текущий день недели
+            const currentTime = currentDate.getHours() + ":" + currentDate.getMinutes(); // Текущее время
+
+            let remainingTime = ""; // Переменная для хранения оставшегося времени или сообщения "Приятного отдыха!"
+
+            // Проверить, есть ли расписание для текущего дня
+            if (schedule.hasOwnProperty(currentDay)) {
+                // Проверить, идет ли пара в данный момент
+                schedule[currentDay].forEach(pair => {
+                    const start = new Date(currentDate.toDateString() + " " + pair.start);
+                    const end = new Date(currentDate.toDateString() + " " + pair.end);
+
+                    if (currentDate > start && currentDate < end) {
+                        const timeDifference = end - currentDate; // Разница между окончанием пары и текущим временем
+
+                        // Вычислить оставшееся время в часах, минутах и секундах
+                        const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+                        const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                        remainingTime = `${hours} часов, ${minutes} минут, ${seconds} секунд`;
+
+                        return; // Прекратить выполнение цикла forEach
+                    }
+                });
+            }
+
+            // Если сегодня не воскресенье и есть пара в данный момент, отобразить оставшееся время
+	   if (remainingTime !== "") {
+                document.getElementById("timer").innerHTML = `Обратный отсчёт до пары: ${remainingTime}`;
+            } else { // Воскресенье или нет пары
+                document.getElementById("timer").innerHTML = "Приятного отдыха!";
+            }
+        }
+
+        // Обновлять таймер каждую секунду
+        setInterval(updateTimer, 1000);
+    </script>
 </head>
 <body>
-    <section onselectstart="return false" class="container">
-
-        <div id="progressBox">
-            <div id="titleBox">
-                <div id="title-start">&nbsp</div>
-                <div id="title">&nbsp</div>
-                <div id="title-end">&nbsp</div>
-            </div>
-            <div id="progress_bar">
-                <div id="progress_line"></div>
-                <div id="timeBox">
-                        <div class="text" id="timerPassed"></div>
-                        <div class="text" id="timerLeft"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="pairs_block">
-            <table id="bell_list">
-                <tr class="notlast">
-                    <td>08:45</td>
-                    <td>-</td>
-                    <td>10:05</td>
-                </tr>
-                <tr class="notlast">
-                    <td>10:25</td>
-                    <td>-</td>
-                    <td>11:45</td>
-                </tr>
-                <tr class="notlast">
-                    <td>12:05</td>
-                    <td>-</td>
-                    <td>13:25</td>
-                </tr>
-                <tr>
-                    <td>13:35</td>
-                    <td>-</td>
-                    <td>14:55</td>
-                </tr>
-                </table>
-            <table id="saturday_bell_list">
-                <tr class="notlast">
-                    <td>08:45</td>
-                    <td>-</td>
-                    <td>10:00</td>
-                </tr>
-                <tr class="notlast">
-                    <td>10:10</td>
-                    <td>-</td>
-                    <td>11:25</td>
-                </tr>
-                <tr class="notlast">
-                    <td>11:35</td>
-                    <td>-</td>
-                    <td>12:50</td>
-                </tr>
-                <tr>
-                    <td>13:00</td>
-                    <td>-</td>
-                    <td>14:15</td>
-                </tr>
-            </table>
-        </div>
-
-        <div id="emoji_placeholder">
-            <tgs-player autoplay loop mode="normal" src="" class="emoji-player" id="emoji">
-            </tgs-player>
-            <!-- <dotlottie-player class="emoji-player" id="player" src="" background="transparent" speed="1" direction="1" mode="normal" loop autoplay mute>
-            </dotlottie-player> -->
-            <!-- <video playsinline muted autoplay loop src="Stickers/Break.mov" type="video/mov" id="player">
-            </video> -->
-        </div>
-        <footer>
-            <img id="dummy" src="dummy.png" alt="">
-        </footer>
-    </section>
-    <script src="script.js"></script>
-    <script src="confetti.js"></script>
-    <script src="click_confetti.js"></script>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@0.4.0/dist/tgs-player.js"></script>
-    <!-- <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> -->
+    <h1 style="text-align:center;">Обратный отсчёт до пары</h1>
+    <div style="text-align:center;">
+        <p id="timer" style="font-size:24px;"></p>
+    </div>
 </body>
 </html>
