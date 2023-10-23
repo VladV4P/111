@@ -54,37 +54,49 @@
         function updateTimer() {
             const currentDate = new Date(); // Текущая дата и время
             const currentDay = currentDate.toLocaleString('ru-RU', { weekday: 'long' }).toLowerCase(); // Текущий день недели
-            const currentTime = currentDate.getHours() + ":" + currentDate.getMinutes(); // Текущее время
+            const currentTime = currentDate.getHours() * 100 + currentDate.getMinutes(); // Текущее время в формате ЧЧММ
 
-            let remainingTime = ""; // Переменная для хранения оставшегося времени или сообщения "Приятного отдыха!"
+            let remainingTime = ""; // Переменная для хранения оставшегося времени до начала следующей пары
 
-            // Проверить, есть ли расписание для текущего дня
-            if (schedule.hasOwnProperty(currentDay)) {
-                // Проверить, идет ли пара в данный момент
-                schedule[currentDay].forEach(pair => {
-                    const start = new Date(currentDate.toDateString() + " " + pair.start);
-                    const end = new Date(currentDate.toDateString() + " " + pair.end);
-
-                    if (currentDate > start && currentDate < end) {
-                        const timeDifference = end - currentDate; // Разница между окончанием пары и текущим временем
-
-                        // Вычислить оставшееся время в часах, минутах и секундах
-                        const hours = Math.floor(timeDifference / (1000 * 60 * 60));
-                        const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-                        remainingTime = `${hours} часов, ${minutes} минут, ${seconds} секунд`;
-
-                        return; // Прекратить выполнение цикла forEach
+            if (currentDay === "воскресенье") {
+                remainingTime = "Приятного отдыха!";
+            } else {
+                let nextDay = currentDay;
+                let i = 0;
+                while (remainingTime === "") {
+                    nextDay = getNextDay(nextDay);
+                    if (schedule.hasOwnProperty(nextDay)) {
+                        const nextSchedule = schedule[nextDay];
+                        if (nextSchedule[i % nextSchedule.length]) {
+                            const startTime = Number(nextSchedule[i % nextSchedule.length].start.replace(':', ''));
+                            if (startTime > currentTime) {
+                                const hours = Math.floor((startTime - currentTime) / 100);
+                                const minutes = (startTime - currentTime) % 100;
+                                remainingTime = `${hours} часов, ${minutes} минут`;
+                            }
+                        }
                     }
-                });
+                    i++;
+                }
             }
 
-            // Если сегодня не воскресенье и есть пара в данный момент, отобразить оставшееся время
-	   if (remainingTime !== "") {
-                document.getElementById("timer").innerHTML = `Обратный отсчёт до пары: ${remainingTime}`;
-            } else { // Воскресенье или нет пары
-                document.getElementById("timer").innerHTML = "Чиллим, флексим, отдыхаем";
+            // Если нет расписания на следующую пару, выводить сообщение "Приятного отдыха!"
+            if (remainingTime === "") {
+                remainingTime = "Чиллим, флексим, отдыхаем";
+            }
+	    // Отобразить оставшееся время или сообщение на странице
+            document.getElementById("timer").innerHTML = `Обратный отсчет до начала следующей пары: ${remainingTime}`;
+        }
+
+        // Функция для получения следующего дня недели
+        function getNextDay(day) {
+            const daysOfWeek = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"];
+            const index = daysOfWeek.indexOf(day);
+            
+            if (index === daysOfWeek.length - 1) {
+                return daysOfWeek[0];
+            } else {
+                return daysOfWeek[index + 1];
             }
         }
 
@@ -93,7 +105,7 @@
     </script>
 </head>
 <body>
-    <h1 style="text-align:center;">Обратный отсчёт до пары</h1>
+    <h1 style="text-align:center;">Обратный отсчет до пары</h1>
     <div style="text-align:center;">
         <p id="timer" style="font-size:24px;"></p>
     </div>
