@@ -65,43 +65,35 @@
 
         // Функция для обновления таймера и полосы загрузки каждую секунду
         function updateTimer() {
-            const currentDate = new Date();
-            const currentDay = currentDate.toLocaleString('ru-RU', { weekday: 'long' }).toLowerCase();
-            const currentTime = currentDate.getHours() * 60 + currentDate.getMinutes();
+            const currentDate = new Date(); // Текущая дата и время
+            const currentTime = currentDate.getHours() * 60 + currentDate.getMinutes(); // Текущее время в формате ЧЧММ
 
             const progressBar = document.getElementById("progress-bar");
             const progress = document.getElementById("progress");
 
-            let remainingTime = "";
+            const currentDay = currentDate.toLocaleString('ru-RU', { weekday: 'long' }).toLowerCase(); // Текущий день недели
 
-            if (currentDay === "воскресенье") {
-                remainingTime = "чиллим, флексим, отдыхаем";
-                progress.style.width = "0%";
-            } else {
-                let nextDay = currentDay;
-                let i = 0;
-                while (remainingTime === "") {
-                    nextDay = getNextDay(nextDay);
-                    if (schedule.hasOwnProperty(nextDay)) {
-                        const nextSchedule = schedule[nextDay];
-                        if (nextSchedule[i % nextSchedule.length]) {
-                            const start = getTimeValue(nextSchedule[i % nextSchedule.length].start);
-                            const end = getTimeValue(nextSchedule[i % nextSchedule.length].end);
-                            const progressBarWidth = ((currentTime - start) / (end - start)) * 100;
-                            if (progressBarWidth >= 0 && progressBarWidth <= 100) {
-                                progress.style.width = progressBarWidth + "%";
-				    remainingTime = `${Math.floor((end - currentTime) / 60)} часов, ${(end - currentTime) % 60} минут`;
-                            }
-                        }
-                    }
-                    i++;
-                }
-                if (remainingTime === "") {
-                    remainingTime = "Чиллим, флексим, отдыхаем";
+            let remainingTime = ""; // Переменная для хранения оставшегося времени до начала следующей пары
+
+            if (schedule.hasOwnProperty(currentDay)) {
+                const currentSchedule = schedule[currentDay];
+                const nextPairIndex = currentSchedule.findIndex(pair => getTimeValue(pair.start) > currentTime);
+                if (nextPairIndex !== -1) {
+                    const nextPair = currentSchedule[nextPairIndex];
+                    const start = getTimeValue(nextPair.start);
+                    const end = getTimeValue(nextPair.end);
+                    progress.style.width = `${((currentTime - start) / (end - start)) * 100}%`;
+                    remainingTime = `${Math.floor((end - currentTime) / 60)} часов, ${(end - currentTime) % 60} минут`;
+                } else {
                     progress.style.width = "0%";
-                }
+                    remainingTime = "чиллим флексим отдыхаем";
+			}
+            } else {
+                progress.style.width = "0%";
+                remainingTime = "Приятного отдыха!";
             }
 
+            // Отобразить оставшееся время или сообщение на странице
             document.getElementById("timer").innerHTML = `Обратный отсчет до начала следующей пары: ${remainingTime}`;
         }
 
@@ -110,16 +102,6 @@
             const hours = parseInt(timeArray[0]);
             const minutes = parseInt(timeArray[1]);
             return hours * 60 + minutes;
-        }
-
-        function getNextDay(day) {
-            const daysOfWeek = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"];
-            const index = daysOfWeek.indexOf(day);
-            if (index === daysOfWeek.length - 1) {
-                return daysOfWeek[0];
-            } else {
-                return daysOfWeek[index + 1];
-            }
         }
 
         setInterval(updateTimer, 1000);
