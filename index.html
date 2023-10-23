@@ -59,7 +59,7 @@
             let remainingTime = ""; // Переменная для хранения оставшегося времени до начала следующей пары
 
             if (currentDay === "воскресенье") {
-                remainingTime = "чиллим, флексим отдыхаем";
+                remainingTime = "Приятного отдыха!";
             } else {
                 let nextDay = currentDay;
                 let i = 0;
@@ -82,36 +82,9 @@
 
             // Если нет расписания на следующую пару, выводить сообщение "Приятного отдыха!"
             if (remainingTime === "") {
-                remainingTime = "Чилиим влексим отдыхаем!";
+                remainingTime = "чиллим флексим отдыхаем";
             }
 		// Отобразить оставшееся время или сообщение на странице
-            document.getElementById("timer").innerHTML = `Обратный отсчет до начала следующей пары: ${remainingTime}`;
-        }
-
-        // Функция для получения следующего дня недели
-        function getNextDay(day) {
-            const daysOfWeek = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"];
-            const index = daysOfWeek.indexOf(day);
-            
-            if (index === daysOfWeek.length - 1) {
-                return daysOfWeek[0];
-            } else {
-                return daysOfWeek[index + 1];
-            }
-        }
-
-        // Обновлять таймер каждую секунду
-        setInterval(updateTimer, 1000);
-    </script>
-</head>
-<body>
-    <h1 style="text-align:center;">Обратный отсчет до пары</h1>
-    <div style="text-align:center;">
-        <p id="timer" style="font-size:24px;"></p>
-    </div>
-</body>
-</html>
-// Отобразить оставшееся время или сообщение на странице
             document.getElementById("timer").innerHTML = `Обратный отсчет до начала следующей пары: ${remainingTime}`;
         }
 
