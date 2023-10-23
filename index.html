@@ -8,6 +8,19 @@
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #555555;
+        }
+
+        .progress {
+            width: 100%;
+            height: 100%;
+            background-color: #ff0000;
+            transition: width 1s;
+        }
     </style>
     <script>
         // Установить расписание пар
@@ -50,16 +63,20 @@
             ]
         };
 
-        // Функция для обновления таймера каждую секунду
+        // Функция для обновления таймера и полосы загрузки каждую секунду
         function updateTimer() {
-            const currentDate = new Date(); // Текущая дата и время
-            const currentDay = currentDate.toLocaleString('ru-RU', { weekday: 'long' }).toLowerCase(); // Текущий день недели
-            const currentTime = currentDate.getHours() * 100 + currentDate.getMinutes(); // Текущее время в формате ЧЧММ
+            const currentDate = new Date();
+            const currentDay = currentDate.toLocaleString('ru-RU', { weekday: 'long' }).toLowerCase();
+            const currentTime = currentDate.getHours() * 60 + currentDate.getMinutes();
 
-            let remainingTime = ""; // Переменная для хранения оставшегося времени до начала следующей пары
+            const progressBar = document.getElementById("progress-bar");
+            const progress = document.getElementById("progress");
+
+            let remainingTime = "";
 
             if (currentDay === "воскресенье") {
-                remainingTime = "Приятного отдыха!";
+                remainingTime = "чиллим, флексим, отдыхаем";
+                progress.style.width = "0%";
             } else {
                 let nextDay = currentDay;
                 let i = 0;
@@ -68,31 +85,36 @@
                     if (schedule.hasOwnProperty(nextDay)) {
                         const nextSchedule = schedule[nextDay];
                         if (nextSchedule[i % nextSchedule.length]) {
-                            const startTime = Number(nextSchedule[i % nextSchedule.length].start.replace(':', ''));
-                            if (startTime > currentTime) {
-                                const hours = Math.floor((startTime - currentTime) / 100);
-                                const minutes = (startTime - currentTime) % 100;
-                                remainingTime = `${hours} часов, ${minutes} минут`;
+                            const start = getTimeValue(nextSchedule[i % nextSchedule.length].start);
+                            const end = getTimeValue(nextSchedule[i % nextSchedule.length].end);
+                            const progressBarWidth = ((currentTime - start) / (end - start)) * 100;
+                            if (progressBarWidth >= 0 && progressBarWidth <= 100) {
+                                progress.style.width = progressBarWidth + "%";
+				    remainingTime = `${Math.floor((end - currentTime) / 60)} часов, ${(end - currentTime) % 60} минут`;
                             }
                         }
                     }
                     i++;
                 }
+                if (remainingTime === "") {
+                    remainingTime = "Чиллим, флексим, отдыхаем";
+                    progress.style.width = "0%";
+                }
             }
 
-            // Если нет расписания на следующую пару, выводить сообщение "Приятного отдыха!"
-            if (remainingTime === "") {
-                remainingTime = "Чиллим, флексим, отдыхаем";
-            }
-	    // Отобразить оставшееся время или сообщение на странице
             document.getElementById("timer").innerHTML = `Обратный отсчет до начала следующей пары: ${remainingTime}`;
         }
 
-        // Функция для получения следующего дня недели
+        function getTimeValue(time) {
+            const timeArray = time.split(":");
+            const hours = parseInt(timeArray[0]);
+            const minutes = parseInt(timeArray[1]);
+            return hours * 60 + minutes;
+        }
+
         function getNextDay(day) {
             const daysOfWeek = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"];
             const index = daysOfWeek.indexOf(day);
-            
             if (index === daysOfWeek.length - 1) {
                 return daysOfWeek[0];
             } else {
@@ -100,11 +122,14 @@
             }
         }
 
-        // Обновлять таймер каждую секунду
         setInterval(updateTimer, 1000);
     </script>
 </head>
 <body>
+    <div class="progress-bar">
+        <div id="progress" class="progress"></div>
+    </div>
+
     <h1 style="text-align:center;">Обратный отсчет до пары</h1>
     <div style="text-align:center;">
         <p id="timer" style="font-size:24px;"></p>
